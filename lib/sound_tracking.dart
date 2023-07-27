@@ -1,43 +1,48 @@
+
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:noise_meter/noise_meter.dart';
 import 'package:audio_session/audio_session.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-class SoundDetector extends StatefulWidget {
+class AlertNotifier {
+  static final AlertNotifier _instance = AlertNotifier._internal();
+
+  factory AlertNotifier() {
+    return _instance;
+  }
+
+  AlertNotifier._internal();
+
+  final ValueNotifier<bool> isAlertingNotifier = ValueNotifier<bool>(false);
+
+  bool get isAlerting => isAlertingNotifier.value;
+
+  set isAlerting(bool value) {
+    isAlertingNotifier.value = value;
+  }
+}
+
+
+class SoundDetector {
+  SoundDetector({required this.threshold, required this.alertDuration});
   final double threshold;
   final int alertDuration;
 
-  SoundDetector({required this.threshold, required this.alertDuration});
-
-  @override
-  _SoundDetectorState createState() => _SoundDetectorState();
-}
-
-class _SoundDetectorState extends State<SoundDetector> {
-  bool _isAlerting = false;
+  final AlertNotifier _alertNotifier = AlertNotifier();
   Timer? _alertTimeout;
-  late List<int> arr;
+  List<int> arr = [];
 
   StreamSubscription<NoiseReading>? _noiseSubscription;
   StreamSubscription<dynamic>? _permissionSubscription;
 
-  @override
-  void initState() {
-    super.initState();
-    _initializeSoundDetector();
-    arr = [];
-  }
-
-  @override
-  void dispose() {
+  void stopSoundDetection() {
     _noiseSubscription?.cancel();
     _permissionSubscription?.cancel();
     _alertTimeout?.cancel();
-    super.dispose();
   }
 
-  void _initializeSoundDetector() async {
+  void initializeSoundDetector() async {
     if (await Permission.microphone.request().isGranted) {
       final session = await AudioSession.instance;
       await session.configure(const AudioSessionConfiguration.speech());
@@ -54,44 +59,20 @@ class _SoundDetectorState extends State<SoundDetector> {
     }
   }
 
-  //run after every 50 milliseconds approx
   void _processNoise(NoiseReading noiseReading) {
-    final averageVolume = noiseReading.meanDecibel;
-
-    if (arr.length >= (widget.alertDuration / 1000)) {
+    final averageVolume = noiseReading.maxDecibel;
+    print(averageVolume);
+    if (arr.length >= (alertDuration / 1000)) {
       arr.removeAt(0);
     }
-    arr.add(averageVolume > widget.threshold ? 1 : 0);
+    arr.add(averageVolume > threshold ? 1 : 0);
 
     int? sum = arr.reduce((value, element) => value + element);
-    if (arr.length == (widget.alertDuration / 1000) &&
-        sum == (widget.alertDuration / 1000)) {
-      setState(() {
-        _isAlerting = true;
-      });
-
+    print(_alertNotifier.isAlerting);
+    if (arr.length == (alertDuration / 1000) && sum == (alertDuration / 1000)) {
+      _alertNotifier.isAlerting = true;
     } else {
-      setState(() {
-        _isAlerting = false;
-      });
+      _alertNotifier.isAlerting = false;
     }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Sound Detector')),
-      body: Container(
-        color: _isAlerting ? Colors.red : Colors.green,
-        child: Center(
-          child: Text(
-            _isAlerting
-                ? 'Sound level exceeded the threshold for ${widget.alertDuration / 1000} seconds!'
-                : 'Normal',
-            style: const TextStyle(fontSize: 20.0, color: Colors.white),
-          ),
-        ),
-      ),
-    );
   }
 }

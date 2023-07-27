@@ -28,32 +28,37 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  ImageDetector imageDetector = ImageDetector();
+  SoundDetector soundDetector = SoundDetector(threshold: 10, alertDuration: 5000);
 
   @override
   void initState() {
     super.initState();
-    // Start capturing images when the HomeScreen widget is initialized
-    imageDetector.startCapture(interval: const Duration(seconds: 2));
+    soundDetector.initializeSoundDetector();
   }
 
   @override
   void dispose() {
-    // Stop capturing images when the widget is disposed to avoid leaks
-    imageDetector.stopCapture();
+    soundDetector.stopSoundDetection();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    // Your HomeScreen UI code goes here (if needed)
     return Scaffold(
       appBar: AppBar(
-        title: Text('Image Detector'),
+        title: Text('Image And Sound Detector'),
       ),
-      body: Center(
-        child: Text('Home Screen Content'),
+      body: ValueListenableBuilder<bool>(
+        valueListenable: AlertNotifier().isAlertingNotifier,
+        builder: (context, isAlerting, _) {
+          print("main $isAlerting");
+          return Container(
+            color: isAlerting ? Colors.red : Colors.white,
+            child: Text('Home Screen Content'),
+          );
+        },
       ),
     );
   }
 }
+

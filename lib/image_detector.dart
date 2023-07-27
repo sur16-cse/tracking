@@ -9,7 +9,7 @@ class ImageDetector {
   CameraController? _cameraController;
   Timer? _timer;
   String? _latestImagePath; // Store the path of the latest image
-  bool _isCapturing = false; // Flag to track capture in progress
+  bool _isCapturing = false; // Flag to track capture in progres
 
   Future<void> startCapture({
     Duration interval = const Duration(seconds: 1),
