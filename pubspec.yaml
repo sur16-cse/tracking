@@ -38,6 +38,11 @@ dependencies:
   noise_meter: ^4.0.1
   permission_handler: ^10.4.3
   audio_session: ^0.1.16
+  camera: ^0.10.5+2
+  image: ^4.0.17
+  image_picker: ^1.0.1
+  flutter_secure_storage: ^8.0.0
+  path_provider: ^2.0.15
 
 dev_dependencies:
   flutter_test:

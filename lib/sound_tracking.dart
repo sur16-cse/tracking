@@ -54,6 +54,7 @@ class _SoundDetectorState extends State<SoundDetector> {
     }
   }
 
+  //run after every 50 milliseconds approx
   void _processNoise(NoiseReading noiseReading) {
     final averageVolume = noiseReading.meanDecibel;
 
@@ -68,6 +69,7 @@ class _SoundDetectorState extends State<SoundDetector> {
       setState(() {
         _isAlerting = true;
       });
+
     } else {
       setState(() {
         _isAlerting = false;
