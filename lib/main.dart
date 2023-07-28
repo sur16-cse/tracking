@@ -28,7 +28,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  SoundDetector soundDetector = SoundDetector(threshold: 10, alertDuration: 5000);
+  SoundDetector soundDetector = SoundDetector(threshold: 50, alertDuration: 5000);
 
   @override
   void initState() {
@@ -45,6 +45,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.blue,
       appBar: AppBar(
         title: Text('Image And Sound Detector'),
       ),
@@ -54,7 +55,7 @@ class _HomeScreenState extends State<HomeScreen> {
           print("main $isAlerting");
           return Container(
             color: isAlerting ? Colors.red : Colors.white,
-            child: Text('Home Screen Content'),
+            child: Center(child: Text('Home Screen Content')),
           );
         },
       ),
