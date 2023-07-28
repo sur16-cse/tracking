@@ -1,4 +1,3 @@
-
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:noise_meter/noise_meter.dart';
@@ -23,7 +22,6 @@ class AlertNotifier {
   }
 }
 
-
 class SoundDetector {
   SoundDetector({required this.threshold, required this.alertDuration});
   final double threshold;
@@ -36,10 +34,16 @@ class SoundDetector {
   StreamSubscription<NoiseReading>? _noiseSubscription;
   StreamSubscription<dynamic>? _permissionSubscription;
 
+  // Add a timer to manage the throttle
+  Timer? _throttleTimer;
+  bool _isThrottling = false;
+
   void stopSoundDetection() {
     _noiseSubscription?.cancel();
     _permissionSubscription?.cancel();
     _alertTimeout?.cancel();
+    // Cancel the throttle timer when stopping the sound detection
+    _throttleTimer?.cancel();
   }
 
   void initializeSoundDetector() async {
@@ -49,7 +53,8 @@ class SoundDetector {
       final noiseMeter = NoiseMeter();
       try {
         _noiseSubscription = noiseMeter.noise.listen((noiseReading) {
-          _processNoise(noiseReading);
+          // Call _processNoise with throttling
+          _throttleProcessNoise(noiseReading);
         });
       } catch (e) {
         print("Error starting noise meter: $e");
@@ -59,8 +64,24 @@ class SoundDetector {
     }
   }
 
+  void _throttleProcessNoise(NoiseReading noiseReading) {
+    if (!_isThrottling) {
+      // If not throttling, process the noise reading and start the throttle timer
+      _processNoise(noiseReading);
+      _startThrottleTimer();
+    }
+  }
+
+  void _startThrottleTimer() {
+    _isThrottling = true;
+    _throttleTimer = Timer(Duration(seconds: 1), () {
+      // After 1 second, reset the throttle flag
+      _isThrottling = false;
+    });
+  }
+
   void _processNoise(NoiseReading noiseReading) {
-    final averageVolume = noiseReading.maxDecibel;
+    final averageVolume = noiseReading.meanDecibel;
     print(averageVolume);
     if (arr.length >= (alertDuration / 1000)) {
       arr.removeAt(0);
@@ -76,3 +97,4 @@ class SoundDetector {
     }
   }
 }
+
