@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart' as path;
@@ -100,14 +99,35 @@ class ImageDetector {
     }
   }
 
-  Widget showTimer([int? count]) {
+  Widget showTimer() {
     return ValueListenableBuilder<int?>(
       valueListenable: _counterTimer,
       builder: (context, countTimer, _) {
-        return countTimer != 0 ? Text("$countTimer") : const Text("");
+        return countTimer != 0
+            ? Center(
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 500),
+            transitionBuilder: (child, animation) {
+              return ScaleTransition(
+                scale: animation,
+                child: child,
+              );
+            },
+            child: Text(
+              "$countTimer",
+              style: const TextStyle(
+                fontSize: 100.0,
+                fontWeight: FontWeight.w500,
+                color: Colors.black,
+              ),
+            ),
+          ),
+        )
+            : const SizedBox();
       },
     );
   }
+
 
   // Function to display the latest captured image using the Flutter Image widget.
   Widget showImage() {
@@ -117,7 +137,7 @@ class ImageDetector {
       builder: (context, latestImagePath, _) {
         if (latestImagePath == null) {
           // If there is no latest image, display a placeholder image or return null.
-          return showTimer();
+          return Center(child: showTimer());
         } else {
           // If there is a latest image, display it using the Image widget.
           return Image.file(
