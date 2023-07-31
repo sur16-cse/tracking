@@ -104,25 +104,27 @@ class ImageDetector {
       valueListenable: _counterTimer,
       builder: (context, countTimer, _) {
         return countTimer != 0
-            ? Center(
+            ? Expanded(
+              child: Center(
           child: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 500),
-            transitionBuilder: (child, animation) {
-              return ScaleTransition(
-                scale: animation,
-                child: child,
-              );
-            },
-            child: Text(
-              "$countTimer",
-              style: const TextStyle(
-                fontSize: 100.0,
-                fontWeight: FontWeight.w500,
-                color: Colors.black,
+              duration: const Duration(milliseconds: 500),
+              transitionBuilder: (child, animation) {
+                return ScaleTransition(
+                  scale: animation,
+                  child: child,
+                );
+              },
+              child: Text(
+                "$countTimer",
+                style: const TextStyle(
+                  fontSize: 100.0,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black,
+                ),
               ),
-            ),
           ),
-        )
+        ),
+            )
             : const SizedBox();
       },
     );

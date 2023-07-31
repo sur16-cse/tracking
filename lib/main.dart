@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:tracking/image_detector.dart';
-import 'package:tracking/sound_tracking.dart';
+import 'package:sound_image_tracking/sound_tracking.dart';
+
+import 'image_detector.dart';
 
 void main() {
   runApp(const MyApp());
@@ -86,10 +87,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 margin: EdgeInsets.all(10),
                 child: imageDetector.showImage(),
               ),
-              // Container(
-              //   margin: EdgeInsets.all(10),
-              //   child: imageDetector.showTimer(),
-              // ),
             ],
           );
         },
