@@ -18,12 +18,14 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: HomeScreen(),
+      home: const HomeScreen(),
     );
   }
 }
 
 class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
@@ -49,16 +51,14 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Image And Sound Detector'),
+        title: const Text('Image And Sound Detector'),
       ),
       body: ValueListenableBuilder<bool>(
         valueListenable: AlertNotifier().isAlertingNotifier,
         builder: (context, isAlerting, _) {
-          print("main $isAlerting");
           if (isAlerting) {
             // Show SnackBar when isAlerting is true
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              print("scaffold");
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
                   content: Text('Alert: Some alert message here!'),
@@ -72,19 +72,19 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               Container(
                 color: Colors.white,
-                child: Center(child: Text('Home Screen Content')),
+                child: const Center(child: Text('Home Screen Content')),
               ),
               Container(
-                margin: EdgeInsets.only(left: 5, top: 25, right: 5, bottom: 25),
+                margin: const EdgeInsets.only(left: 5, top: 25, right: 5, bottom: 25),
                 child: ElevatedButton(
                   onPressed: () {
                     imageDetector.startCapture();
                   },
-                  child: Text("Start Capture Image"),
+                  child: const Text("Start Capture Image"),
                 ),
               ),
               Container(
-                margin: EdgeInsets.all(10),
+                margin: const EdgeInsets.all(10),
                 child: imageDetector.showImage(),
               ),
             ],

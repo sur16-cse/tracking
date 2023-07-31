@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:camera/camera.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
@@ -9,14 +10,16 @@ class ImageDetector {
   CameraController? _cameraController;
   Timer? _timer;
   String? _latestImagePath; // Store the path of the latest image
-  bool _isCapturing = false; // Flag to track capture in progres
+  bool _isCapturing = false; // Flag to track capture in progress
   final int counter;
 
   ImageDetector({required this.counter});
 
+  // ignore: prefer_final_fields
   ValueNotifier<String?> _latestImagePathNotifier =
       ValueNotifier<String?>(null);
 
+  // ignore: prefer_final_fields
   ValueNotifier<int?> _counterTimer = ValueNotifier<int>(0);
 
   Future<void> startCapture({
@@ -45,8 +48,6 @@ class ImageDetector {
 
           int count = 1;
           _timer = Timer.periodic((const Duration(seconds: 1)), (seconds) {
-            print(count);
-            print("counter $counter");
             _counterTimer.value = count;
             showTimer();
             count++;
@@ -59,7 +60,9 @@ class ImageDetector {
         }
       }
     } catch (e) {
-      print("Error initializing camera: $e");
+      if (kDebugMode) {
+        print("Error initializing camera: $e");
+      }
     }
   }
 
@@ -70,7 +73,9 @@ class ImageDetector {
   Future<void> captureImage(int imageQuality) async {
     try {
       if (!_cameraController!.value.isInitialized) {
-        print("Camera is not initialized.");
+        if (kDebugMode) {
+          print("Camera is not initialized.");
+        }
         return;
       }
 
@@ -87,14 +92,18 @@ class ImageDetector {
         // Update the latest image file with the new image.
         await File(_latestImagePath!).writeAsBytes(imageBytes);
 
-        print("Image captured and saved in $_latestImagePath.");
+        if (kDebugMode) {
+          print("Image captured and saved in $_latestImagePath.");
+        }
         // Notify listeners about the updated image path.
         _latestImagePathNotifier.value = _latestImagePath;
 
         _isCapturing = false; // Reset the flag after capturing is complete.
       }
     } catch (e) {
-      print("Error capturing image: $e");
+      if (kDebugMode) {
+        print("Error capturing image: $e");
+      }
       _isCapturing = false; // Reset the flag in case of an error too.
     }
   }
@@ -133,7 +142,6 @@ class ImageDetector {
 
   // Function to display the latest captured image using the Flutter Image widget.
   Widget showImage() {
-    print("showImage $_latestImagePath");
     return ValueListenableBuilder<String?>(
       valueListenable: _latestImagePathNotifier,
       builder: (context, latestImagePath, _) {

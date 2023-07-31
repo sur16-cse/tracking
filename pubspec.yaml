@@ -1,5 +1,5 @@
 name: sound_image_tracking
-description: A new Flutter project.
+description: Sound Tracker for every 1 second , the pitch is low or higher than given threshold and Image Capturing and save in app folder
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 
@@ -15,7 +15,8 @@ description: A new Flutter project.
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.0.1
+version: 1.0.2
+homepage: https://github.com/sur16-cse/tracking
 
 environment:
   sdk: '>=3.0.6 <4.0.0'
@@ -40,6 +41,7 @@ dependencies:
   camera: ^0.10.5+2
   path_provider: ^2.0.15
   animated_text_kit: ^4.2.2
+  path: ^1.8.3
 
 dev_dependencies:
   flutter_test:

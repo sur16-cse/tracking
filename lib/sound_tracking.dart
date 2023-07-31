@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:noise_meter/noise_meter.dart';
 import 'package:audio_session/audio_session.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -57,10 +57,14 @@ class SoundDetector {
           _throttleProcessNoise(noiseReading);
         });
       } catch (e) {
-        print("Error starting noise meter: $e");
+        if (kDebugMode) {
+          print("Error starting noise meter: $e");
+        }
       }
     } else {
-      print("Microphone permission not granted.");
+      if (kDebugMode) {
+        print("Microphone permission not granted.");
+      }
     }
   }
 
@@ -74,7 +78,7 @@ class SoundDetector {
 
   void _startThrottleTimer() {
     _isThrottling = true;
-    _throttleTimer = Timer(Duration(seconds: 1), () {
+    _throttleTimer = Timer(const Duration(seconds: 1), () {
       // After 1 second, reset the throttle flag
       _isThrottling = false;
     });
@@ -82,14 +86,12 @@ class SoundDetector {
 
   void _processNoise(NoiseReading noiseReading) {
     final averageVolume = noiseReading.meanDecibel;
-    print(averageVolume);
     if (arr.length >= (alertDuration / 1000)) {
       arr.removeAt(0);
     }
     arr.add(averageVolume > threshold ? 1 : 0);
 
     int? sum = arr.reduce((value, element) => value + element);
-    print(_alertNotifier.isAlerting);
     if (arr.length == (alertDuration / 1000) && sum == (alertDuration / 1000)) {
       _alertNotifier.isAlerting = true;
     } else {
