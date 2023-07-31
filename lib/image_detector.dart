@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart' as path;
@@ -7,30 +8,56 @@ import 'dart:io';
 
 class ImageDetector {
   CameraController? _cameraController;
-  // Timer? _timer;
+  Timer? _timer;
   String? _latestImagePath; // Store the path of the latest image
   bool _isCapturing = false; // Flag to track capture in progres
+  final int counter;
 
-  ValueNotifier<String?> _latestImagePathNotifier = ValueNotifier<String?>(null);
+  ImageDetector({required this.counter});
+
+  ValueNotifier<String?> _latestImagePathNotifier =
+      ValueNotifier<String?>(null);
+
+  ValueNotifier<int?> _counterTimer = ValueNotifier<int>(0);
 
   Future<void> startCapture({
-    // Duration interval = const Duration(seconds: 1),
     ResolutionPreset resolution = ResolutionPreset.medium,
     int imageQuality = 90,
   }) async {
+    _latestImagePathNotifier.value = null;
+    _counterTimer.value = 0;
     try {
+      if (_isCapturing) {
+        // Already capturing, return immediately to avoid starting a new capture.
+        return;
+      }
+
       List<CameraDescription> cameras = await availableCameras();
 
       if (cameras.isNotEmpty) {
-        _cameraController = CameraController(cameras[1], resolution,enableAudio: true,);
+        _cameraController = CameraController(
+          cameras[1],
+          resolution,
+          enableAudio: true,
+        );
         await _cameraController!.initialize();
+        if (!_isCapturing) {
+          _isCapturing = true;
 
-        // _timer = Timer.periodic(interval, (timer) {
-          if (!_isCapturing) {
-            _isCapturing = true;
-            captureImage(imageQuality);
-          }
-        // });
+          int count = 1;
+          _timer = Timer.periodic((const Duration(seconds: 1)), (seconds) {
+            print(count);
+            print("counter $counter");
+            _counterTimer.value = count;
+            showTimer();
+            count++;
+
+            if (count > counter) {
+              captureImage(imageQuality);
+              _timer?.cancel();
+            }
+          });
+        }
       }
     } catch (e) {
       print("Error initializing camera: $e");
@@ -38,7 +65,6 @@ class ImageDetector {
   }
 
   void stopCapture() {
-    // _timer?.cancel();
     _cameraController?.dispose();
   }
 
@@ -74,6 +100,14 @@ class ImageDetector {
     }
   }
 
+  Widget showTimer([int? count]) {
+    return ValueListenableBuilder<int?>(
+      valueListenable: _counterTimer,
+      builder: (context, countTimer, _) {
+        return countTimer != 0 ? Text("$countTimer") : const Text("");
+      },
+    );
+  }
 
   // Function to display the latest captured image using the Flutter Image widget.
   Widget showImage() {
@@ -83,12 +117,7 @@ class ImageDetector {
       builder: (context, latestImagePath, _) {
         if (latestImagePath == null) {
           // If there is no latest image, display a placeholder image or return null.
-          return Image.network(
-            // Provide an image URL or use some other widget to display an image.
-            'https://via.placeholder.com/150',
-            height: 150,
-            width: 150,
-          );
+          return showTimer();
         } else {
           // If there is a latest image, display it using the Image widget.
           return Image.file(
@@ -101,6 +130,10 @@ class ImageDetector {
       },
     );
   }
+
   // Function to get the latest image path as a ValueNotifier.
-  ValueNotifier<String?> get latestImagePathNotifier => _latestImagePathNotifier;
+  ValueNotifier<String?> get latestImagePathNotifier =>
+      _latestImagePathNotifier;
+
+  ValueNotifier<int?> get counterTimer => _counterTimer;
 }

@@ -3,10 +3,12 @@ import 'package:tracking/image_detector.dart';
 import 'package:tracking/sound_tracking.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -26,8 +28,9 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  SoundDetector soundDetector = SoundDetector(threshold: 70, alertDuration: 5000);
-  ImageDetector imageDetector =ImageDetector();
+  SoundDetector soundDetector =
+      SoundDetector(threshold: 70, alertDuration: 5000);
+  ImageDetector imageDetector = ImageDetector(counter: 3);
 
   @override
   void initState() {
@@ -56,7 +59,7 @@ class _HomeScreenState extends State<HomeScreen> {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               print("scaffold");
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
+                const SnackBar(
                   content: Text('Alert: Some alert message here!'),
                   // duration: Duration(seconds: 5),
                   backgroundColor: Colors.red,
@@ -74,7 +77,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 margin: EdgeInsets.only(left: 5, top: 25, right: 5, bottom: 25),
                 child: ElevatedButton(
                   onPressed: () {
-                   imageDetector.startCapture();
+                    imageDetector.startCapture();
                   },
                   child: Text("Start Capture Image"),
                 ),
@@ -83,6 +86,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 margin: EdgeInsets.all(10),
                 child: imageDetector.showImage(),
               ),
+              // Container(
+              //   margin: EdgeInsets.all(10),
+              //   child: imageDetector.showTimer(),
+              // ),
             ],
           );
         },
