@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:sound_image_tracking/image_detector.dart';
 import 'package:sound_image_tracking/sound_tracking.dart';
-
-import 'image_detector.dart';
 
 void main() {
   runApp(const MyApp());
