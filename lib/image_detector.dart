@@ -21,6 +21,12 @@ class ImageDetector {
 
   // ignore: prefer_final_fields
   ValueNotifier<int?> _counterTimer = ValueNotifier<int>(0);
+  ValueNotifier<CameraController?> _cameraControllerNotifier =
+      ValueNotifier<CameraController?>(null);
+  // Future<void>loadCamera() async{
+  //
+  // }
+  //
 
   Future<void> startCapture({
     ResolutionPreset resolution = ResolutionPreset.medium,
@@ -42,7 +48,10 @@ class ImageDetector {
           resolution,
           enableAudio: true,
         );
+
         await _cameraController!.initialize();
+        _cameraControllerNotifier.value = _cameraController;
+        print("$_cameraController hello camera");
         if (!_isCapturing) {
           _isCapturing = true;
 
@@ -113,9 +122,12 @@ class ImageDetector {
       valueListenable: _counterTimer,
       builder: (context, countTimer, _) {
         return countTimer != 0
-            ? Expanded(
-              child: Center(
-          child: AnimatedSwitcher(
+            ? Positioned(
+          top: 20,
+          left: 0,
+          right: 0,
+          child: Center(
+            child: AnimatedSwitcher(
               duration: const Duration(milliseconds: 500),
               transitionBuilder: (child, animation) {
                 return ScaleTransition(
@@ -128,17 +140,16 @@ class ImageDetector {
                 style: const TextStyle(
                   fontSize: 100.0,
                   fontWeight: FontWeight.w500,
-                  color: Colors.black,
+                  color: Colors.white,
                 ),
               ),
+            ),
           ),
-        ),
-            )
+        )
             : const SizedBox();
       },
     );
   }
-
 
   // Function to display the latest captured image using the Flutter Image widget.
   Widget showImage() {
@@ -146,8 +157,51 @@ class ImageDetector {
       valueListenable: _latestImagePathNotifier,
       builder: (context, latestImagePath, _) {
         if (latestImagePath == null) {
-          // If there is no latest image, display a placeholder image or return null.
-          return Center(child: showTimer());
+          // If there is no latest image, display the camera preview or return null.
+          return ValueListenableBuilder<CameraController?>(
+            valueListenable: _cameraControllerNotifier,
+            builder: (context, cameraController, _) {
+              if (cameraController == null) {
+                return Center(child: Text("Loading Camera..."));
+              }
+
+              if (!cameraController.value.isInitialized) {
+                // Wait for the camera initialization to complete before showing CameraPreview.
+                return FutureBuilder<void>(
+                  future: cameraController.initialize(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.done) {
+                      return Stack(
+                        children: [
+                          Container(
+                            height: 300,
+                            width: 400,
+                            child: CameraPreview(cameraController),
+                          ),
+                          Center(child: showTimer()), // Show the timer above the CameraPreview
+                        ],
+                      );
+                    } else {
+                      // While waiting for initialization, show a progress indicator.
+                      return Center(child: CircularProgressIndicator());
+                    }
+                  },
+                );
+              } else {
+                // Camera is already initialized, show CameraPreview.
+                return Stack(
+                  children: [
+                    Container(
+                      height: 300,
+                      width: 400,
+                      child: CameraPreview(cameraController),
+                    ),
+                    showTimer(), // Show the timer above the CameraPreview
+                  ],
+                );
+              }
+            },
+          );
         } else {
           // If there is a latest image, display it using the Image widget.
           return Image.file(
@@ -166,4 +220,7 @@ class ImageDetector {
       _latestImagePathNotifier;
 
   ValueNotifier<int?> get counterTimer => _counterTimer;
+
+  ValueNotifier<CameraController?> get cameraControllerNotifier =>
+      _cameraControllerNotifier;
 }
