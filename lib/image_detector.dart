@@ -18,15 +18,11 @@ class ImageDetector {
   // ignore: prefer_final_fields
   ValueNotifier<String?> _latestImagePathNotifier =
       ValueNotifier<String?>(null);
-
   // ignore: prefer_final_fields
   ValueNotifier<int?> _counterTimer = ValueNotifier<int>(0);
+  // ignore: prefer_final_fields
   ValueNotifier<CameraController?> _cameraControllerNotifier =
       ValueNotifier<CameraController?>(null);
-  // Future<void>loadCamera() async{
-  //
-  // }
-  //
 
   Future<void> startCapture({
     ResolutionPreset resolution = ResolutionPreset.medium,
@@ -55,13 +51,13 @@ class ImageDetector {
         if (!_isCapturing) {
           _isCapturing = true;
 
-          int count = 1;
+          int count = counter;
           _timer = Timer.periodic((const Duration(seconds: 1)), (seconds) {
             _counterTimer.value = count;
             showTimer();
-            count++;
+            count--;
 
-            if (count > counter) {
+            if (count < 1) {
               captureImage(imageQuality);
               _timer?.cancel();
             }
